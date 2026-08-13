@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f2a">
+<meta name="description" content="Tetris im Game-Boy-Color-Look – fürs Handy, mit Shop, Power-Ups und der Original-Melodie.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Blocktris">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/styles.css">
+<title>Blocktris — Game Boy Color Tetris</title>
+</head>
+<body>
+
+<div id="app" class="app">
+  <div class="device" id="device">
+
+    <!-- ---------------- Bildschirm ---------------- -->
+    <div class="screen-frame">
+      <div class="screen-top">
+        <span class="dot-power"></span>
+        <span class="screen-label">DOT MATRIX WITH STEREO SOUND</span>
+      </div>
+
+      <div class="screen" id="screen">
+        <div class="game-layout" id="gameLayout">
+          <aside class="rail rail-left">
+            <div class="panel hold-panel">
+              <span class="hud-label">Halten</span>
+              <canvas id="holdCanvas" class="mini-canvas hold"></canvas>
+            </div>
+            <div class="panel stat wide-stat">
+              <span class="hud-label">Punkte</span>
+              <b class="stat-value" id="hudScore">0</b>
+            </div>
+            <div class="panel stat">
+              <span class="hud-label" id="hudGoalLabel">Reihen</span>
+              <b class="stat-value" id="hudLines">0</b>
+            </div>
+            <div class="panel stat">
+              <span class="hud-label">Level</span>
+              <b class="stat-value" id="hudLevel">1</b>
+            </div>
+            <div class="panel stat">
+              <span class="hud-label">Zeit</span>
+              <b class="stat-value small" id="hudTime">0:00</b>
+            </div>
+          </aside>
+
+          <div class="board-wrap" id="boardWrap">
+            <canvas id="board" class="board"></canvas>
+            <div class="combo-badge" id="comboBadge"></div>
+          </div>
+
+          <aside class="rail rail-right">
+            <div class="panel next-panel">
+              <span class="hud-label">Nächste</span>
+              <canvas id="nextCanvas" class="mini-canvas next"></canvas>
+            </div>
+            <div class="panel stat push">
+              <span class="hud-label">Münzen</span>
+              <b class="stat-value coin" id="hudCoins">0</b>
+            </div>
+            <div class="panel stat b2b" id="hudB2bPanel">
+              <span class="hud-label">B2B</span>
+              <b class="stat-value small" id="hudB2b">–</b>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Countdown -->
+        <div class="countdown hidden" id="countdown"><span>3</span></div>
+
+        <!-- Toasts -->
+        <div class="toast-host" id="toastHost"></div>
+
+        <!-- FPS (über das Admin-Panel einschaltbar) -->
+        <div class="fps-meter hidden" id="fpsMeter">–– fps</div>
+
+        <!-- ---------------- Overlays ---------------- -->
+        <div class="overlay hidden" id="overlay">
+
+          <!-- Hauptmenü -->
+          <section class="view" id="view-menu">
+            <div class="logo">
+              <span class="logo-b">BLOCK</span><span class="logo-t">TRIS</span>
+              <div class="logo-sub">Game Boy Color Edition</div>
+            </div>
+            <div class="coin-bar">
+              <span class="coin-chip">🪙 <b id="menuCoins">0</b></span>
+              <span class="coin-chip">🔥 <b id="menuStreak">0 Tage</b></span>
+            </div>
+            <div class="menu-grid">
+              <button class="btn big primary" data-view-action="play">▶ Spielen</button>
+              <button class="btn" data-view="modes">🎮 Modus</button>
+              <button class="btn" data-view="shop">🛒 Shop</button>
+              <button class="btn" data-view="stats">📊 Statistik</button>
+              <button class="btn" data-view="achievements">🏆 Erfolge <span class="pill" id="achPill">0/0</span></button>
+              <button class="btn" data-view="settings">⚙️ Optionen</button>
+              <button class="btn" data-view="help">❓ Hilfe</button>
+            </div>
+            <div class="menu-foot" id="menuMode">Modus: Marathon</div>
+          </section>
+
+          <!-- Modi -->
+          <section class="view hidden" id="view-modes">
+            <h2 class="view-title">Spielmodus</h2>
+            <div class="list" id="modeList"></div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Shop -->
+          <section class="view hidden" id="view-shop">
+            <h2 class="view-title">Shop <span class="coin-chip small">🪙 <b id="shopCoins">0</b></span></h2>
+            <div class="tabs" id="shopTabs">
+              <button class="tab active" data-tab="skins">Blöcke</button>
+              <button class="tab" data-tab="shells">Gehäuse</button>
+              <button class="tab" data-tab="powerups">Items</button>
+              <button class="tab" data-tab="upgrades">Upgrades</button>
+              <button class="tab" data-tab="music">Musik</button>
+            </div>
+            <div class="list scroll" id="shopList"></div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Statistik -->
+          <section class="view hidden" id="view-stats">
+            <h2 class="view-title">Statistik</h2>
+            <div class="list scroll" id="statsList"></div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Erfolge -->
+          <section class="view hidden" id="view-achievements">
+            <h2 class="view-title">Erfolge</h2>
+            <div class="list scroll" id="achList"></div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Optionen -->
+          <section class="view hidden" id="view-settings">
+            <h2 class="view-title">Optionen</h2>
+            <div class="list scroll" id="settingsList"></div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Hilfe -->
+          <section class="view hidden" id="view-help">
+            <h2 class="view-title">Steuerung</h2>
+            <div class="list scroll help">
+              <div class="help-row"><b>Tippen</b><span>Stein drehen</span></div>
+              <div class="help-row"><b>Wischen ←→</b><span>Bewegen</span></div>
+              <div class="help-row"><b>Ziehen ↓</b><span>Sanft fallen</span></div>
+              <div class="help-row"><b>Schnippen ↓</b><span>Sofort fallen</span></div>
+              <div class="help-row"><b>Wischen ↑</b><span>Halten (Hold)</span></div>
+              <div class="help-row"><b>D-Pad / A / B</b><span>Klassische Tasten</span></div>
+              <div class="help-row"><b>Item-Tasten</b><span>Power-Ups zünden</span></div>
+              <div class="help-sep">Tastatur</div>
+              <div class="help-row"><b>← → ↓</b><span>Bewegen</span></div>
+              <div class="help-row"><b>↑ / X</b><span>Drehen rechts</span></div>
+              <div class="help-row"><b>Z</b><span>Drehen links</span></div>
+              <div class="help-row"><b>A</b><span>180° drehen</span></div>
+              <div class="help-row"><b>Leertaste</b><span>Hard Drop</span></div>
+              <div class="help-row"><b>C / Shift</b><span>Halten</span></div>
+              <div class="help-row"><b>P / Esc</b><span>Pause</span></div>
+              <div class="help-row"><b>1–4</b><span>Power-Ups</span></div>
+              <div class="help-sep">Punkte</div>
+              <div class="help-row"><b>Tetris</b><span>800 × Level</span></div>
+              <div class="help-row"><b>T-Spin Double</b><span>1200 × Level</span></div>
+              <div class="help-row"><b>Back-to-Back</b><span>+50 %</span></div>
+              <div class="help-row"><b>Perfect Clear</b><span>bis 2000 × Level</span></div>
+            </div>
+            <button class="btn back" data-view="menu">← Zurück</button>
+          </section>
+
+          <!-- Admin (versteckt: 3× in eine obere Ecke tippen) -->
+          <section class="view hidden" id="view-admin">
+            <h2 class="view-title">🔧 Admin</h2>
+            <div class="list scroll" id="adminList"></div>
+            <button class="btn back" id="adminClose">← Schließen</button>
+          </section>
+
+          <!-- Pause -->
+          <section class="view hidden" id="view-pause">
+            <h2 class="view-title">Pause</h2>
+            <div class="menu-grid narrow">
+              <button class="btn big primary" data-view-action="resume">▶ Weiter</button>
+              <button class="btn" data-view-action="restart">⟳ Neustart</button>
+              <button class="btn" data-view="settings">⚙️ Optionen</button>
+              <button class="btn danger" data-view-action="quit">✕ Beenden</button>
+            </div>
+          </section>
+
+          <!-- Game Over -->
+          <section class="view hidden" id="view-over">
+            <h2 class="view-title" id="overTitle">Game Over</h2>
+            <div class="result" id="overResult"></div>
+            <div class="menu-grid narrow">
+              <button class="btn big primary hidden" id="reviveBtn">❤️ Weitermachen</button>
+              <button class="btn big" data-view-action="restart">⟳ Nochmal</button>
+              <button class="btn" data-view="shop">🛒 Shop</button>
+              <button class="btn" data-view-action="quit">☰ Menü</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="screen-bottom"><span class="brand">Blocktris<span class="brand-color">COLOR</span></span></div>
+    </div>
+
+    <!-- ---------------- Steuerung ---------------- -->
+    <div class="controls" id="controls">
+      <div class="items-row" id="itemsRow"></div>
+
+      <div class="pads">
+        <div class="dpad">
+          <button class="dbtn up" data-act="rotcw" aria-label="Drehen"></button>
+          <button class="dbtn left" data-act="left" aria-label="Links"></button>
+          <button class="dbtn right" data-act="right" aria-label="Rechts"></button>
+          <button class="dbtn down" data-act="down" aria-label="Runter"></button>
+          <div class="dpad-center"></div>
+        </div>
+
+        <div class="ab">
+          <button class="rbtn b" data-act="rotccw"><span>B</span></button>
+          <button class="rbtn a" data-act="rotcw"><span>A</span></button>
+        </div>
+      </div>
+
+      <div class="pads-2">
+        <button class="pill-btn" data-act="hold">HOLD</button>
+        <button class="pill-btn" data-act="pause">START</button>
+        <button class="pill-btn wide" data-act="drop">DROP ⤓</button>
+      </div>
+    </div>
+
+    <div class="speaker"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<div class="rotate-hint" id="rotateHint">Bitte Gerät hochkant halten 📱</div>
+
+<script src="js/engine.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
