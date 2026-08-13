@@ -1,5 +1,5 @@
 /* Service Worker — App-Shell zwischenspeichern, damit offline gespielt werden kann. */
-var CACHE = 'blocktris-v1';
+var CACHE = 'blocktris-v2';
 var ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ var ASSETS = [
   './js/render.js',
   './js/input.js',
   './js/ui.js',
+  './js/admin.js',
   './js/main.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
