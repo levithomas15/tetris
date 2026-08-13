@@ -1,16 +1,15 @@
-name: Tests & GitHub Pages
+name: Tests & Veröffentlichen
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+# Nur Schreibrechte aufs Repo nötig — kein Pages-Admin-Recht,
+# das der Standard-Token nicht hat.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Immer nur ein Deploy gleichzeitig, laufende nicht abbrechen.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -27,20 +26,12 @@ jobs:
       - name: Engine-Tests
         run: node test/engine.test.js
 
-  deploy:
-    name: Veröffentlichen
+  publish:
+    name: gh-pages aktualisieren
     needs: test
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Pages einrichten (aktiviert Pages beim ersten Lauf)
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Seite zusammenstellen
         run: |
@@ -48,10 +39,14 @@ jobs:
           cp -r index.html css js icons manifest.webmanifest sw.js _site/
           touch _site/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Auf gh-pages veröffentlichen
+        run: |
+          cd _site
+          git init -q
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
