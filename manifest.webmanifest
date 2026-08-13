@@ -1,0 +1,18 @@
+{
+  "name": "Blocktris — Game Boy Color Tetris",
+  "short_name": "Blocktris",
+  "description": "Tetris fürs Handy im Game-Boy-Color-Look: Shop, Power-Ups, Erfolge und die Original-Melodie.",
+  "lang": "de",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0c11",
+  "theme_color": "#1b1f2a",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
