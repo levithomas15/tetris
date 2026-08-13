@@ -4,8 +4,10 @@ Ein komplettes Tetris-Spiel als Web-App: läuft direkt im Handy-Browser, ohne
 Installation, ohne Internet (nach dem ersten Laden), ohne Werbung.
 Mit Shop-System, Power-Ups, Erfolgen und der Original-Tetris-Melodie.
 
-**Spielen:** `index.html` im Browser öffnen — oder auf GitHub Pages
-veröffentlichen (siehe unten) und den Link aufs Handy schicken.
+## ▶ Jetzt spielen: **https://levithomas15.github.io/tetris/**
+
+Link am Handy öffnen → Teilen-Menü → „Zum Home-Bildschirm hinzufügen".
+Danach läuft es im Vollbild wie eine echte App, auch ohne Internet.
 
 ---
 
@@ -107,10 +109,10 @@ npx http-server -p 8080 .
 # dann http://localhost:8080 öffnen
 ```
 
-**Aufs Handy bringen:** In den GitHub-Repo-Einstellungen unter
-*Settings → Pages* als Quelle diesen Branch wählen. Danach die Seite auf dem
-Handy öffnen und über „Zum Home-Bildschirm hinzufügen" installieren —
-sie läuft dann im Vollbild wie eine echte App.
+**Veröffentlichung:** Der Workflow `.github/workflows/pages.yml` führt bei
+jedem Push auf `main` die Logiktests aus und schiebt die Spieldateien danach
+in den Branch `gh-pages`, den GitHub Pages ausliefert. Die Seite aktualisiert
+sich also von selbst.
 
 Das Spiel merkt sich alles lokal im Browser (`localStorage`); es werden keine
 Daten übertragen.
