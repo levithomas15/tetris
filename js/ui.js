@@ -103,7 +103,8 @@
   UI.prototype.renderMenu = function () {
     var d = this.save.data;
     $('menuCoins').textContent = fmtNum(d.coins);
-    $('menuStreak').textContent = d.streak || 0;
+    var streak = d.streak || 0;
+    $('menuStreak').textContent = streak + (streak === 1 ? ' Tag' : ' Tage');
     var p = this.save.achievementProgress();
     $('achPill').textContent = p.done + '/' + p.total;
     var mode = MODES.filter(function (m) { return m.id === this.game.mode; }, this)[0] || MODES[0];
@@ -429,7 +430,7 @@
     row('Höchstes Level', fmtNum(s.maxLevel));
     row('Spielzeit', fmtClock(s.playtime));
     row('Münzen gesamt', fmtNum(d.totalCoins));
-    row('Tages-Serie', (d.streak || 0) + ' 🔥');
+    row('Tages-Serie', (d.streak || 0) + ((d.streak || 0) === 1 ? ' Tag 🔥' : ' Tage 🔥'));
 
     var p = this.save.achievementProgress();
     row('Erfolge', p.done + ' / ' + p.total);

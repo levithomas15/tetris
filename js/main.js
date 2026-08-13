@@ -47,7 +47,8 @@
 
     this.renderer = new Renderer($('board'), $('holdCanvas'), $('nextCanvas'), save);
     this.ui = new UI(save, audio, this);
-    this.mode = localStorage.getItem('gbc-tetris-mode') || 'marathon';
+    try { this.mode = localStorage.getItem('gbc-tetris-mode') || 'marathon'; }
+    catch (e) { this.mode = 'marathon'; }
 
     this.makeEngine();
 
@@ -79,7 +80,12 @@
       setTimeout(function () { self.renderer.resize(); }, 250);
     });
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden && self.engine && self.engine.phase === 'playing') { self.pauseGame(); }
+      if (document.hidden) {
+        if (self.engine && self.engine.phase === 'playing') { self.pauseGame(); }
+        self.releaseWakeLock();
+      } else if (self.engine && self.engine.phase === 'playing') {
+        self.requestWakeLock();
+      }
     });
 
     // Erste Nutzergeste schaltet den Ton frei (Browser-Autoplay-Regeln).
@@ -105,6 +111,23 @@
 
     if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
       navigator.serviceWorker.register('sw.js').catch(function () { /* offline egal */ });
+    }
+  };
+
+  /* Bildschirmsperre verhindern, solange gespielt wird. */
+  Game.requestWakeLock = function () {
+    if (!navigator.wakeLock || this.wakeLock) { return; }
+    var self = this;
+    navigator.wakeLock.request('screen').then(function (lock) {
+      self.wakeLock = lock;
+      lock.addEventListener('release', function () { self.wakeLock = null; });
+    }).catch(function () { /* nicht unterstützt oder verweigert */ });
+  };
+
+  Game.releaseWakeLock = function () {
+    if (this.wakeLock) {
+      try { this.wakeLock.release(); } catch (e) { /* egal */ }
+      this.wakeLock = null;
     }
   };
 
@@ -161,6 +184,7 @@
     if (this.engine && !this.engine.finished && this.engine.piecesPlaced > 0) { this.finishGame(false); }
     this.engine.phase = 'over';
     audio.setTempoScale(1);
+    this.releaseWakeLock();
     this.ui.show('menu');
   };
 
@@ -178,6 +202,7 @@
       if (self.countdownLeft <= 0) {
         cd.classList.add('hidden');
         self.engine.phase = restorePhase || 'playing';
+        self.requestWakeLock();
         audio.play('go');
         if (audio.enabledMusic && !audio.playing) { audio.startMusic(); }
         return;
@@ -197,6 +222,7 @@
 
   Game.pauseGame = function () {
     if (!this.engine || this.engine.finished) { return; }
+    this.releaseWakeLock();
     this.engine.pause();
     this.input.releaseAll();
     this.ui.show('pause');
@@ -237,6 +263,7 @@
         });
         break;
       case 'clear': this.onClear(d, eng); break;
+      case 'afterclear': this.onAfterClear(eng); break;
       case 'levelup':
         audio.play('levelup');
         r.float('LEVEL ' + d.level, '#ffd54f', true);
@@ -286,6 +313,7 @@
       r.addShake(20);
       this.ui.toast('✨ Perfect Clear! +' + d.coins + ' 🪙', 'gold', 2200);
     }
+    r.float('+' + fmtNum(Math.round(d.points * save.scoreMultiplier())), '#cfe4ff');
     if (d.b2b > 1) { r.float('B2B ×' + d.b2b, '#ffcf4a'); }
     if (d.combo > 0) {
       audio.play('combo', d.combo);
@@ -299,14 +327,17 @@
     this.bump('hudScore');
     if (d.coins) { this.bump('hudCoins'); }
 
-    // Käse-Modus: geschafft, wenn kein Müll mehr liegt
-    if (this.mode === 'cheese') {
-      var left = 0;
-      for (var y = 0; y < Engine.TOTAL_ROWS; y++) {
-        for (var x = 0; x < Engine.COLS; x++) { if (eng.board[y][x] === 8) { left++; break; } }
+  };
+
+  // Läuft erst, wenn die Reihen tatsächlich verschwunden sind.
+  Game.onAfterClear = function (eng) {
+    if (this.mode !== 'cheese') { return; }
+    for (var y = 0; y < Engine.TOTAL_ROWS; y++) {
+      for (var x = 0; x < Engine.COLS; x++) {
+        if (eng.board[y][x] === 8) { return; }
       }
-      if (left === 0) { eng.gameOver(true); }
     }
+    eng.gameOver(true);
   };
 
   Game.showCombo = function (n) {
@@ -331,6 +362,7 @@
 
   Game.onGameOver = function (d) {
     this.input.releaseAll();
+    this.releaseWakeLock();
     this.showCombo(0);
     audio.setTempoScale(1);
     audio.play(d.win ? 'win' : 'gameover');

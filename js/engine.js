@@ -510,6 +510,9 @@
       this.board.unshift(row);
     }
     this.clearingRows = [];
+    // Erst jetzt ist das Brett wirklich aufgeräumt — Modi wie „Käse"
+    // prüfen hier ihr Ziel und können das Spiel noch beenden.
+    this.emit('afterclear', { rows: rows.length });
     if (!this.finished) {
       this.phase = 'playing';
       this.spawn();
