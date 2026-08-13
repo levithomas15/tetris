@@ -91,6 +91,7 @@ js/audio.js           Chiptune-Synth: Musik + Soundeffekte
 js/input.js           Touch-Tasten (DAS/ARR), Gesten, Tastatur
 js/shop.js            Speicherstand, Münzen, Shop, Erfolge
 js/ui.js              Menüs, Shop-Ansichten, Optionen
+js/admin.js           Verstecktes Admin-/Cheat-Panel
 js/main.js            Spielablauf, Loop, HUD
 sw.js                 Service Worker (offline spielbar)
 test/engine.test.js   22 Logiktests
@@ -118,6 +119,26 @@ Das Spiel merkt sich alles lokal im Browser (`localStorage`); es werden keine
 Daten übertragen.
 
 ---
+
+## Admin-Panel (versteckt)
+
+**3× kurz hintereinander in eine der beiden oberen Bildschirmecken tippen** —
+also links neben „Halten" oder rechts neben „Nächste". Das geht im Menü
+genauso wie mitten im Spiel (die Runde pausiert dabei automatisch).
+
+Darin lässt sich alles steuern:
+
+* **Münzen** — beliebig hinzufügen oder direkt setzen
+* **Freischalten** — alle Blöcke, Gehäuse, Musik, Upgrades auf Max,
+  alle Erfolge, Items ×99 oder alles auf einmal
+* **Im Spiel** — Level und Punkte ändern, jeden Stein einwechseln, Feld
+  leeren, Müllreihen einfügen, Bombe/Zeitlupe zünden, Runde sofort
+  gewinnen oder beenden
+* **Cheats** — Schwerkraft aus, unverwundbar, unendlich Items, FPS-Anzeige
+  (bleiben auch nach dem Neuladen aktiv, „Alle Cheats aus" schaltet sie ab)
+* **Technik** — Auflösung, Zellgröße, Seed, Combo, Musik-Tempo
+* **Speicherstand** — als JSON exportieren/importieren, Tagesbonus
+  zurücksetzen, Statistik nullen, alles löschen
 
 ## Musik-Hinweis
 

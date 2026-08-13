@@ -79,6 +79,9 @@
         <!-- Toasts -->
         <div class="toast-host" id="toastHost"></div>
 
+        <!-- FPS (über das Admin-Panel einschaltbar) -->
+        <div class="fps-meter hidden" id="fpsMeter">–– fps</div>
+
         <!-- ---------------- Overlays ---------------- -->
         <div class="overlay hidden" id="overlay">
 
@@ -175,6 +178,13 @@
             <button class="btn back" data-view="menu">← Zurück</button>
           </section>
 
+          <!-- Admin (versteckt: 3× in eine obere Ecke tippen) -->
+          <section class="view hidden" id="view-admin">
+            <h2 class="view-title">🔧 Admin</h2>
+            <div class="list scroll" id="adminList"></div>
+            <button class="btn back" id="adminClose">← Schließen</button>
+          </section>
+
           <!-- Pause -->
           <section class="view hidden" id="view-pause">
             <h2 class="view-title">Pause</h2>
@@ -242,6 +252,7 @@
 <script src="js/render.js"></script>
 <script src="js/input.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/admin.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

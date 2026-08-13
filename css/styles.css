@@ -876,3 +876,115 @@ input[type=range] {
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* ---------------- Admin-Panel (versteckt) ---------------- */
+
+.admin-status {
+  display: flex;
+  justify-content: space-around;
+  gap: 6px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 8px;
+  padding: 5px 6px;
+  font-size: clamp(7px, 2.2vw, 10px);
+  color: var(--text-dim);
+  flex: 0 0 auto;
+}
+.admin-status b { color: #fff; }
+
+.admin-block { display: flex; flex-direction: column; gap: 4px; }
+.admin-label {
+  font-size: clamp(6px, 2vw, 9px);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+.admin-grid.pieces { grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+.admin-btn {
+  font-size: clamp(8px, 2.5vw, 11px);
+  padding: 8px 4px;
+  min-height: 32px;
+  border-radius: 7px;
+}
+.admin-btn.wide { grid-column: 1 / -1; }
+.admin-btn.danger { border-color: var(--bad); color: var(--bad); }
+
+/* Steintasten in Blockfarben */
+.admin-grid.pieces .admin-btn { padding: 8px 0; font-weight: 800; }
+.piece-I { color: #37c8e0; border-color: #37c8e0; }
+.piece-J { color: #2f6fd8; border-color: #2f6fd8; }
+.piece-L { color: #f0921f; border-color: #f0921f; }
+.piece-O { color: #f2d024; border-color: #f2d024; }
+.piece-S { color: #4fc84f; border-color: #4fc84f; }
+.piece-T { color: #c34fd8; border-color: #c34fd8; }
+.piece-Z { color: #e0403c; border-color: #e0403c; }
+
+.admin-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #12161f;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--font);
+  font-size: clamp(8px, 2.5vw, 11px);
+  padding: 5px 6px;
+}
+
+.admin-code {
+  background: #0d1119;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 7px;
+  padding: 6px 8px;
+  font-size: clamp(6px, 2vw, 9px);
+  line-height: 1.55;
+  color: #9fe8c0;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.admin-textarea {
+  width: 100%;
+  height: 54px;
+  resize: none;
+  background: #12161f;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--font);
+  font-size: clamp(6px, 2vw, 9px);
+  padding: 5px 6px;
+  touch-action: auto;
+}
+
+.admin-hint {
+  font-size: clamp(6px, 2.1vw, 9px);
+  color: var(--text-dim);
+  text-align: center;
+  padding: 4px 2px;
+  line-height: 1.5;
+}
+
+/* FPS-Anzeige */
+.fps-meter {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 47;
+  background: rgba(0, 0, 0, .7);
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: clamp(6px, 2vw, 9px);
+  color: #7cffcb;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}

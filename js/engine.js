@@ -163,6 +163,8 @@
     this.lastKick = 0;
     this.gravityMultiplier = 1;
     this.slowUntil = 0;
+    this.noGravity = false;   // Admin: Steine fallen nicht von selbst
+    this.invincible = false;  // Admin: kein Game Over
     this.linesSinceLevel = 0;
 
     for (var i = 0; i < 7; i++) { this.refillQueue(); }
@@ -519,6 +521,30 @@
     }
   };
 
+  /* ---------------- Werkzeuge (Admin/Power-Ups) ---------------- */
+
+  Engine.prototype.clearBoard = function () {
+    for (var y = 0; y < TOTAL_ROWS; y++) {
+      for (var x = 0; x < COLS; x++) { this.board[y][x] = 0; }
+    }
+  };
+
+  // Füllt die unterste freie Reihe bis auf eine Lücke.
+  Engine.prototype.fillRow = function () {
+    for (var y = TOTAL_ROWS - 1; y >= 0; y--) {
+      var empty = true;
+      for (var x = 0; x < COLS; x++) { if (this.board[y][x]) { empty = false; break; } }
+      if (empty) {
+        var hole = Math.floor(this.rand() * COLS);
+        for (var x2 = 0; x2 < COLS; x2++) {
+          this.board[y][x2] = x2 === hole ? 0 : (1 + Math.floor(this.rand() * 7));
+        }
+        return y;
+      }
+    }
+    return -1;
+  };
+
   /* ---------------- Power-Ups ---------------- */
 
   Engine.prototype.powerBomb = function () {
@@ -596,6 +622,18 @@
 
   Engine.prototype.gameOver = function (win) {
     if (this.finished) { return; }
+    // Admin-Cheat: statt zu verlieren wird das Feld freigeräumt.
+    if (!win && this.invincible && !this._rescuing) {
+      this._rescuing = true;
+      this.clearBoard();
+      this.combo = -1;
+      this.phase = 'playing';
+      this.piece = null;
+      this.spawn();
+      this._rescuing = false;
+      this.emit('rescued', {});
+      return;
+    }
     this.finished = true;
     this.win = !!win;
     this.phase = 'over';
@@ -643,6 +681,7 @@
 
     var g = this.currentGravity();
     if (this.softDropping) { g = Math.max(1, Math.min(g, g / this.settings.softDropFactor)); }
+    if (this.noGravity) { g = Infinity; }
 
     this.gravityAcc += dt;
     var guard = 0;
@@ -659,7 +698,7 @@
       }
     }
 
-    if (this.isGrounded()) {
+    if (this.isGrounded() && !this.noGravity) {
       this.lockTimer += dt;
       if (this.lockTimer >= this.settings.lockDelay) { this.lockPiece(false); }
     } else {

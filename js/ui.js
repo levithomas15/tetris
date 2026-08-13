@@ -91,6 +91,7 @@
     if (name === 'achievements') { this.renderAchievements(); }
     if (name === 'modes') { this.renderModes(); }
     if (name === 'menu') { this.renderMenu(); }
+    if (name === 'admin' && T.Admin) { T.Admin.render(); }
     if (this.game.onViewChange) { this.game.onViewChange(name); }
   };
 

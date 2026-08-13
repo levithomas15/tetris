@@ -100,6 +100,14 @@
 
     $('reviveBtn').addEventListener('click', function () { self.doRevive(); });
 
+    // Verstecktes Admin-Panel: 3× in eine obere Bildschirmecke tippen.
+    if (T.Admin) {
+      T.Admin.install(this);
+      T.Admin.applyToEngine(this.engine);
+      $('adminClose').addEventListener('click', function () { T.Admin.close(); });
+      if (save.data.admin && save.data.admin.fps) { $('fpsMeter').classList.remove('hidden'); }
+    }
+
     $('controls').classList.toggle('lefty', !!settings.leftHanded);
     this.renderItems();
     this.ui.show('menu');
@@ -151,6 +159,7 @@
       onEvent: function (name, data, eng) { self.onEngineEvent(name, data, eng); }
     };
     this.engine = new Engine(opts);
+    if (T.Admin) { T.Admin.applyToEngine(this.engine); }
     this.sessionCoins = 0;
     this.maxB2b = 0;
     this.revivesLeft = save.reviveCount();
@@ -564,6 +573,7 @@
     var self = this;
     var dt = Math.min(now - this.lastFrame, 100);
     this.lastFrame = now;
+    this.countFps(now);
 
     if (this.engine) {
       if (!this.ui.current && this.engine.phase !== 'paused') {
@@ -577,6 +587,18 @@
     }
 
     requestAnimationFrame(function (t) { self.loop(t); });
+  };
+
+  Game.countFps = function (now) {
+    if (!save.data.admin || !save.data.admin.fps) { return; }
+    this._frames = (this._frames || 0) + 1;
+    if (!this._fpsAt) { this._fpsAt = now; return; }
+    if (now - this._fpsAt >= 500) {
+      var fps = Math.round(this._frames * 1000 / (now - this._fpsAt));
+      $('fpsMeter').textContent = fps + ' fps';
+      this._frames = 0;
+      this._fpsAt = now;
+    }
   };
 
   /* ---------------- Start ---------------- */

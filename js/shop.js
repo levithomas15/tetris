@@ -106,6 +106,7 @@
       best: { marathon: 0, sprint: null, ultra: 0, zen: 0, cheese: null, daily: {} },
       achievements: {},
       streak: 0,
+      admin: { noGravity: false, invincible: false, infiniteItems: false, fps: false },
       lastPlayDay: null,
       lastBonusDay: null,
       settings: {
@@ -232,6 +233,7 @@
   };
 
   Save.prototype.usePowerup = function (id) {
+    if (this.data.admin && this.data.admin.infiniteItems) { return true; }
     if (!this.data.inventory[id]) { return false; }
     this.data.inventory[id]--;
     this.save();
